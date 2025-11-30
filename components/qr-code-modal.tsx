@@ -54,7 +54,7 @@ export function QRCodeModal({ open, onOpenChange, item }: QRCodeModalProps) {
     };
 
     const handleCopy = () => {
-        navigator.clipboard.writeText("要复制的内容").then().catch(() => { console.error('复制数据出错！') });
+        navigator.clipboard.writeText(item!.orderId).then().catch(() => { console.error('复制数据出错！') });
         setCopied(true);
     };
 
