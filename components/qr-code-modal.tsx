@@ -3,7 +3,7 @@
 import { useEffect, useState, useCallback } from "react"
 import { Button } from "@/components/ui/button"
 import { Dialog, DialogContent, DialogHeader, DialogTitle } from "@/components/ui/dialog"
-import { Download, Phone, Hash } from "lucide-react"
+import {Download, Phone, Hash, CopyIcon, CheckIcon} from "lucide-react"
 import type { OrderItem } from "@/app/page"
 import QRCode from "qrcode"
 
@@ -18,6 +18,8 @@ export function QRCodeModal({ open, onOpenChange, item }: QRCodeModalProps) {
     const canvasRef = useCallback((node: HTMLCanvasElement | null) => {
         setCanvasEl(node)
     }, []);
+
+    const [copied, setCopied] = useState<boolean>(false);
 
   useEffect(() => {
       if (open && item && canvasEl) {
@@ -49,9 +51,25 @@ export function QRCodeModal({ open, onOpenChange, item }: QRCodeModalProps) {
         link.download = `qrcode-${item.orderId}-${item.phone}.png`
         link.href = canvasEl.toDataURL("image/png")
         link.click();
-    }
+    };
 
-  if (!item) return null
+    const handleCopy = () => {
+        navigator.clipboard.writeText("要复制的内容").then().catch(() => { console.error('复制数据出错！') });
+        setCopied(true);
+    };
+
+    useEffect(() => {
+        if (!copied) return;
+
+        const timer = setTimeout(() => {
+            setCopied(false);
+        }, 2000);
+
+        // 组件卸载或 copied 重置时清除定时器
+        return () => clearTimeout(timer);
+    }, [copied]);
+
+  if (!item) return null;
 
   return (
     <Dialog open={open} onOpenChange={onOpenChange}>
@@ -74,7 +92,13 @@ export function QRCodeModal({ open, onOpenChange, item }: QRCodeModalProps) {
               </div>
               <div>
                 <p className="text-xs text-muted-foreground">订单编号</p>
-                <p className="font-mono text-sm text-foreground">{item.orderId}</p>
+                <div className="flex items-center gap-3">
+                    <p className="font-mono text-sm text-foreground">{item.orderId}</p>
+
+                    {
+                        !copied ? <CopyIcon size={16} className="cursor-pointer" onClick={handleCopy} /> : <CheckIcon size={16} />
+                    }
+                </div>
               </div>
             </div>
             <div className="flex items-center gap-3">
