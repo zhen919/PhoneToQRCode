@@ -11,7 +11,7 @@ interface DataTableProps {
   onGenerate: (item: OrderItem) => void
 }
 
-const PAGE_SIZE = 10
+const PAGE_SIZE = 100
 
 export function DataTable({ data, onGenerate }: DataTableProps) {
   const [currentPage, setCurrentPage] = useState(1)

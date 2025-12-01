@@ -45,7 +45,7 @@ export function ImportModal({ open, onOpenChange, onImport }: ImportModalProps) 
 
       if (parts.length >= 2) {
         const orderId = parts[0].trim()
-        const phone = parts[1].trim()
+        const phone = parts[parts.length - 1].trim()
 
         if (orderId && phone) {
           items.push({ orderId, phone })
@@ -102,7 +102,7 @@ export function ImportModal({ open, onOpenChange, onImport }: ImportModalProps) 
               placeholder={`示例格式（Tab 分隔）：\nORD001\t13800138000\nORD002\t13900139000`}
               value={inputData}
               onChange={(e) => setInputData(e.target.value)}
-              className="min-h-[200px] font-mono text-sm bg-input border-border text-foreground placeholder:text-muted-foreground"
+              className="min-h-[200px] max-h-[300px] font-mono text-sm bg-input border-border text-foreground placeholder:text-muted-foreground"
             />
           </div>
 

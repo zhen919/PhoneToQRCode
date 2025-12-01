@@ -3,17 +3,18 @@
 import { useEffect, useState, useCallback } from "react"
 import { Button } from "@/components/ui/button"
 import { Dialog, DialogContent, DialogHeader, DialogTitle } from "@/components/ui/dialog"
-import {Download, Phone, Hash, CopyIcon, CheckIcon} from "lucide-react"
+import {Download, Phone, Hash, CopyIcon, CheckIcon, Link} from "lucide-react"
 import type { OrderItem } from "@/app/page"
 import QRCode from "qrcode"
 
 interface QRCodeModalProps {
   open: boolean
   onOpenChange: (open: boolean) => void
-  item: OrderItem | null
+  item: OrderItem | null,
+    useLinkMode?: boolean // 添加跳转模式参数
 }
 
-export function QRCodeModal({ open, onOpenChange, item }: QRCodeModalProps) {
+export function QRCodeModal({ open, onOpenChange, item, useLinkMode = false }: QRCodeModalProps) {
     const [canvasEl, setCanvasEl] = useState<HTMLCanvasElement | null>(null)
     const canvasRef = useCallback((node: HTMLCanvasElement | null) => {
         setCanvasEl(node)
@@ -25,9 +26,13 @@ export function QRCodeModal({ open, onOpenChange, item }: QRCodeModalProps) {
       if (open && item && canvasEl) {
           const phone = item.phone.replace("转", ',');
 
+          const context = useLinkMode
+              ? `${window.location.origin}/call?phone=${encodeURIComponent(phone)}&orderId=${encodeURIComponent(item.orderId)}`
+              : `tel:${phone}`;
+
           QRCode.toCanvas(
               canvasEl,
-              `tel:${phone}`,
+              context,
               {
                   width: 200,
                   margin: 2,
@@ -42,7 +47,7 @@ export function QRCodeModal({ open, onOpenChange, item }: QRCodeModalProps) {
           )
       }
 
-  }, [open, item, canvasEl]);
+  }, [open, item, canvasEl, useLinkMode]);
 
     const handleDownload = () => {
         if (!canvasEl || !item) return;
@@ -83,6 +88,19 @@ export function QRCodeModal({ open, onOpenChange, item }: QRCodeModalProps) {
             <div className="rounded-lg bg-white p-4">
               <canvas ref={canvasRef} />
             </div>
+              <div className="flex items-center gap-2 text-xs text-muted-foreground">
+                  {useLinkMode ? (
+                      <>
+                          <Link className="h-3 w-3" />
+                          <span>跳转页面模式</span>
+                      </>
+                  ) : (
+                      <>
+                          <Phone className="h-3 w-3" />
+                          <span>直接拨号模式</span>
+                      </>
+                  )}
+              </div>
           </div>
 
           <div className="space-y-3 rounded-lg bg-secondary/50 p-4">
