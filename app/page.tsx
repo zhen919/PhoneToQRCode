@@ -21,7 +21,7 @@ const CONFIG_KEY = "qr-code-config"
 export default function HomePage() {
     const [data, setData] = useState<OrderItem[]>([])
     const [isImportOpen, setIsImportOpen] = useState(false)
-    const [selectedItem, setSelectedItem] = useState<OrderItem | null>(null)
+    const [currentIndex, setCurrentIndex] = useState(0)
     const [isQROpen, setIsQROpen] = useState(false)
     const [useLinkMode, setUseLinkMode] = useState(false)
 
@@ -68,8 +68,8 @@ export default function HomePage() {
         }
     }
 
-    const handleGenerate = (item: OrderItem) => {
-        setSelectedItem(item)
+    const handleGenerate = (item: OrderItem, index: number) => {
+        setCurrentIndex(index)
         setIsQROpen(true)
     }
 
@@ -130,7 +130,14 @@ export default function HomePage() {
 
             <ImportModal open={isImportOpen} onOpenChange={setIsImportOpen} onImport={handleImport} />
 
-            <QRCodeModal open={isQROpen} onOpenChange={setIsQROpen} item={selectedItem} useLinkMode={useLinkMode} />
+            <QRCodeModal
+                open={isQROpen}
+                onOpenChange={setIsQROpen}
+                items={data}
+                currentIndex={currentIndex}
+                onIndexChange={setCurrentIndex}
+                useLinkMode={useLinkMode}
+            />
         </div>
     )
 }

@@ -3,24 +3,42 @@
 import { useEffect, useState, useCallback } from "react"
 import { Button } from "@/components/ui/button"
 import { Dialog, DialogContent, DialogHeader, DialogTitle } from "@/components/ui/dialog"
-import {Download, Phone, Hash, CopyIcon, CheckIcon, Link} from "lucide-react"
+import {Download, Phone, Hash, CopyIcon, CheckIcon, Link, ChevronLeft, ChevronRight} from "lucide-react"
 import type { OrderItem } from "@/app/page"
 import QRCode from "qrcode"
 
 interface QRCodeModalProps {
   open: boolean
   onOpenChange: (open: boolean) => void
-  item: OrderItem | null,
+    items: OrderItem[],
+    currentIndex: number
+    onIndexChange: (index: number) => void,
     useLinkMode?: boolean // 添加跳转模式参数
 }
 
-export function QRCodeModal({ open, onOpenChange, item, useLinkMode = false }: QRCodeModalProps) {
+export function QRCodeModal({ open, onOpenChange, items, currentIndex,
+                                onIndexChange, useLinkMode = false }: QRCodeModalProps) {
     const [canvasEl, setCanvasEl] = useState<HTMLCanvasElement | null>(null)
     const canvasRef = useCallback((node: HTMLCanvasElement | null) => {
         setCanvasEl(node)
     }, []);
 
     const [copied, setCopied] = useState<boolean>(false);
+    const item = items[currentIndex] || null;
+    const hasPrev = currentIndex > 0;
+    const hasNext = currentIndex < items.length - 1;
+
+    const handlePrev = () => {
+        if (hasPrev) {
+            onIndexChange(currentIndex - 1)
+        }
+    };
+
+    const handleNext = () => {
+        if (hasNext) {
+            onIndexChange(currentIndex + 1)
+        }
+    };
 
   useEffect(() => {
       if (open && item && canvasEl) {
@@ -84,6 +102,29 @@ export function QRCodeModal({ open, onOpenChange, item, useLinkMode = false }: Q
         </DialogHeader>
 
         <div className="space-y-6">
+            <div className="flex items-center justify-between">
+                <Button
+                    variant="outline"
+                    size="icon"
+                    onClick={handlePrev}
+                    disabled={!hasPrev}
+                    className="h-9 w-9 bg-transparent"
+                >
+                    <ChevronLeft className="h-4 w-4" />
+                </Button>
+                <span className="text-sm text-muted-foreground">
+              {currentIndex + 1} / {items.length}
+            </span>
+                <Button
+                    variant="outline"
+                    size="icon"
+                    onClick={handleNext}
+                    disabled={!hasNext}
+                    className="h-9 w-9 bg-transparent"
+                >
+                    <ChevronRight className="h-4 w-4" />
+                </Button>
+            </div>
           <div className="flex flex-col items-center gap-4">
             <div className="rounded-lg bg-white p-4">
               <canvas ref={canvasRef} />
